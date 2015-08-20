@@ -1,7 +1,6 @@
 var async = require('async');
 var cluster = require('cluster');
 var http = require('http');
-var mongoose = require('mongoose');
 var numCPUs = require('os').cpus().length;
 
 if (cluster.isMaster) {
@@ -19,6 +18,18 @@ if (cluster.isMaster) {
   },function(err,results){
     if ( err ) return console.error(err);
     console.log('Workers pids: ' , results);
+    
+    console.log('Starting documentation web server...');
+    
+    var static = require('node-static');
+    var file = new static.Server('./docs');
+
+    http.createServer(function (request, response) {
+        request.addListener('end', function () {
+            file.serve(request, response);
+        }).resume();
+    }).listen(8080);
+    
   });
   
   cluster.on('exit', function(worker, code, signal) {
@@ -27,6 +38,7 @@ if (cluster.isMaster) {
 
 } else {
     
+  var mongoose = require('mongoose');
   // Initialize the connection to the database:
   // >> Connection with Mongoose to the database
   mongoose.connect('mongodb://localhost/test');
