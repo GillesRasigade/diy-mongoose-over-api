@@ -1,6 +1,7 @@
 var async = require('async');
 var cluster = require('cluster');
 var http = require('http');
+var mongoose = require('mongoose');
 var numCPUs = require('os').cpus().length;
 
 if (cluster.isMaster) {
@@ -26,16 +27,31 @@ if (cluster.isMaster) {
 
 } else {
     
+  // Initialize the connection to the database:
+  // >> Connection with Mongoose to the database
+  mongoose.connect('mongodb://localhost/test');
+  var Collection = mongoose.model('Collection', { test: Number });
+    
   // Workers can share any TCP connection
   // In this case its a HTTP server
   http.createServer(function(req, res) {
     
-    // Connection with Mongoose to the database:
+    // Collection creation:
+    var col = new Collection({ test: Math.random() });
     
+    // Simply save:
+    col.save(function(err,col){
+        
+        // Then find:
+        Collection.find(function (err, documents) {
+          if (err) return console.error(err);
+          console.log(documents);
+          res.writeHead(200);
+          res.end("Collection size: " + documents.length + "\n");
+        });
+    });
     
-    
-    res.writeHead(200);
-    res.end("hello world\n");
+    // console.log(mongoose);
     
   }).listen(8000);
   
