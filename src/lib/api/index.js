@@ -3,6 +3,7 @@ module.exports = function(router,mongoose) {
   
   this.router = router;
   this.mongoose = mongoose;
+  var _self = this;
   
   /**
    * API Log:
@@ -30,7 +31,7 @@ module.exports = function(router,mongoose) {
       // Then find:
       Document.find(function (err, documents ) {
         if (err) return console.error(err);
-        console.log('Answering collections: ' + documents.length );
+        _self.log('Answering collections: ' + documents.length );
         res.writeHead(200, {"Content-Type": "application/json"});
         res.end(JSON.stringify(documents));
       });
