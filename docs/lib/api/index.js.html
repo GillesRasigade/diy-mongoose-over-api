@@ -71,20 +71,67 @@
       <div class="row">
         <div class="span3 bs-docs-sidebar">
           <ul class="nav nav-list bs-docs-sidenav affix-top">
-            <li class="active"><a href="index.html">Main</a></li>
-            <li><a href="index.js.html">index.js</a></li>
-            <li><a href="lib/api/index.js.html">lib/api/index.js</a></li>
-            <li><a href="lib/collection/index.js.html">lib/collection/index.js</a></li>
-            <li><a href="lib/server.js.html">lib/server.js</a></li>
+            <li><a href="../../index.html">Main</a></li>
+            <li><a href="../../index.js.html">index.js</a></li>
+            <li class="active"><a href="../../lib/api/index.js.html">lib/api/index.js</a></li>
+            <li><a href="../../lib/collection/index.js.html">lib/collection/index.js</a></li>
+            <li><a href="../../lib/server.js.html">lib/server.js</a></li>
           </ul>
           <div class="scrollspy">
             <ul class="nav nav-list bs-docs-sidenav affix-top">
+              <li><a href="#log"><i class="alert alert-info"></i><span>log</span></a>
+              </li>
+              <li><a href="#list"><i class="alert alert-info"></i><span>list</span></a>
+              </li>
             </ul>
           </div>
         </div>
         <div class="span9">
-          <section id="Main"><h1>diy-mongoose-over-api</h1>
-<p><a href="https://travis-ci.org/GillesRasigade/diy-mongoose-over-api"><img src="https://travis-ci.org/GillesRasigade/diy-mongoose-over-api.svg" alt="Build Status"></a></p><p>Do It Yourself - Mongoose multi-threading API</p></section>
+          <section id="log">
+            <h1>log</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>this.log()</span>
+            </p>
+          </section>
+          <div class="description"><p>API Log:</p> </div>
+          <pre><code class="language-javascript">this.log = function () {
+  
+  // Object to array conversion for arguments:
+  var args = Array.prototype.slice.call(arguments);
+  
+  // Unshift necessary logs information:
+  args.unshift(' &gt;&gt; ');
+  args.unshift( '' + (new Date()).toUTCString() );
+  
+  // Apply the log function:
+  console.log.apply( null , args );
+}</code></pre>
+          <section id="list">
+            <h1>list</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>this.list()</span>
+            </p>
+          </section>
+          <div class="description"><p>List the objects</p> </div>
+          <pre><code class="language-javascript">this.list = function( Document ) {
+  this.log(Document.modelName);
+  router.get(&quot;/api/&quot;+Document.modelName.toLowerCase()+&quot;s&quot;, function(req, res) {
+    
+    // Then find:
+    Document.find(function (err, documents ) {
+      if (err) return console.error(err);
+      console.log('Answering collections: ' + documents.length );
+      res.writeHead(200, {&quot;Content-Type&quot;: &quot;application/json&quot;});
+      res.end(JSON.stringify(documents));
+    });
+  
+  });
+}
+
+return this;
+}</code></pre>
         </div>
       </div>
     </div>

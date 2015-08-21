@@ -71,20 +71,74 @@
       <div class="row">
         <div class="span3 bs-docs-sidebar">
           <ul class="nav nav-list bs-docs-sidenav affix-top">
-            <li class="active"><a href="index.html">Main</a></li>
-            <li><a href="index.js.html">index.js</a></li>
+            <li><a href="index.html">Main</a></li>
+            <li class="active"><a href="index.js.html">index.js</a></li>
             <li><a href="lib/api/index.js.html">lib/api/index.js</a></li>
             <li><a href="lib/collection/index.js.html">lib/collection/index.js</a></li>
             <li><a href="lib/server.js.html">lib/server.js</a></li>
           </ul>
           <div class="scrollspy">
             <ul class="nav nav-list bs-docs-sidenav affix-top">
+              <li><a href="#assert"><i class="alert alert-success"></i><span>assert</span></a>
+              </li>
             </ul>
           </div>
         </div>
         <div class="span9">
-          <section id="Main"><h1>diy-mongoose-over-api</h1>
-<p><a href="https://travis-ci.org/GillesRasigade/diy-mongoose-over-api"><img src="https://travis-ci.org/GillesRasigade/diy-mongoose-over-api.svg" alt="Build Status"></a></p><p>Do It Yourself - Mongoose multi-threading API</p></section>
+          <section id="assert">
+            <h1>assert</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-success radius ctx-type">declaration</div><span>assert</span>
+            </p>
+          </section>
+          <div class="description"><p>Main application file.</p> </div>
+          <pre><code class="language-javascript">var assert = require('assert');
+assert.equal( process.argv.length , 3 , 'Please add config.json path to the start command.' );
+
+
+var async = require('async');
+var cluster = require('cluster');
+var fs = require('fs');
+var numCPUs = require('os').cpus().length;
+
+
+
+
+// Load application configuration:
+var config = JSON.parse(fs.readFileSync( process.argv[2]  , 'utf8')  );
+var server = require('./lib/server.js');
+
+// Master process only:
+if (cluster.isMaster) {
+
+  console.log('Total number of CPUs available: ' + numCPUs );
+
+  // Fork workers.
+  async.map(new Array(numCPUs),function(id,callback){
+    
+    // Fork worker and keep pid in memory:
+    cluster.fork().on('online', function(worker) {
+        callback(null, this.process.pid);
+    });
+  
+  },function(err,results){
+    if ( err ) return console.error(err);
+    
+    console.log('Workers pids: ' , results);
+    
+  });
+  
+  cluster.on('exit', function(worker, code, signal) {
+    console.log('worker ' + worker.process.pid + ' died');
+  });
+
+} else {
+  
+  // Server initialization:
+  server.create( config );
+  
+}</code></pre>
         </div>
       </div>
     </div>
